@@ -1478,7 +1478,6 @@ class LibvirtDriver(driver.ComputeDriver):
             metadata['disk_format'] = img_fmt
 
         metadata['container_format'] = base.get('container_format', 'bare')
-
         return metadata
 
     def snapshot(self, context, instance, image_href, update_task_state):
@@ -1509,7 +1508,6 @@ class LibvirtDriver(driver.ComputeDriver):
         # NOTE(bfilippov): save lvm and rbd as raw
         if image_format == 'lvm' or image_format == 'rbd':
             image_format = 'raw'
-
         metadata = self._create_snapshot_metadata(base,
                                                   instance,
                                                   image_format,
