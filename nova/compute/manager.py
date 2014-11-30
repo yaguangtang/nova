@@ -231,7 +231,7 @@ wrap_exception = functools.partial(exception.wrap_exception,
 time_mapping = {'hourly': 60*60,
                 'daily': 60*60*24,
                 'weekly': 60*60*24*7,
-                'test': 320,
+                'test': 820,
                 'monthly': 60*60*24*7*30}
 
 
@@ -2752,7 +2752,6 @@ class ComputeManager(manager.Manager):
     def _backup_rotate_instance(self, context):
         instances = instance_obj.InstanceList.get_by_host(
             context, self.host, expected_attrs=['metadata'])
-        import pdb;pdb.set_trace()
         for instance in instances:
             tenant_id = instance.project_id
             backup_type = instance.metadata.get('backup_type')
@@ -2775,7 +2774,7 @@ class ComputeManager(manager.Manager):
                     backup_time = timeutils.utcnow()
                     instance.metadata['backup_time'] = backup_time
                     instance.save()
-                    backup_name = instance.name + '_backup'
+                    backup_name = instance.display_name + '_backup'
                     properties = {}
                     properties['backup_type'] = backup_type
                     properties['backup_time'] = backup_time
@@ -2912,11 +2911,13 @@ class ComputeManager(manager.Manager):
         :param rotation: int representing how many backups to keep around;
             None if rotation shouldn't be used (as in the case of snapshots)
         """
+        if rotation:
+            rotation = int(rotation)
         image_service = glance.get_default_image_service()
-        filters ={'properties': {'property-backup_type': backup_type,
-                                 'property-rotation': rotation,
-                                 'property-image_type': 'backup',
-                                 'property-instance_uuid': instance.uuid}
+        filters ={'properties': {'backup_type': backup_type,
+                                 'rotation': rotation,
+                                 'image_type': 'backup',
+                                 'instance_uuid': instance.uuid}
 		}
         images = image_service.detail(context, filters=filters,
                                       sort_key='created_at', sort_dir='desc')
